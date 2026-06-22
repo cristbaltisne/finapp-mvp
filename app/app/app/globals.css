@@ -1,0 +1,263 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #f7f8fa;
+  color: #0f172a;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+}
+
+button {
+  font-family: inherit;
+}
+
+.page {
+  min-height: 100vh;
+  background: #f7f8fa;
+}
+
+.phone {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -0.03em;
+}
+
+.eyebrow {
+  margin: 0 0 6px 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pill,
+.progress-pill {
+  background: white;
+  color: #64748b;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.center {
+  min-height: calc(100vh - 110px);
+  display: flex;
+  align-items: center;
+}
+
+.card,
+.dark-card {
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.card {
+  background: white;
+}
+
+.hero {
+  padding: 30px;
+}
+
+.icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 20px;
+  background: #0f172a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 26px;
+}
+
+.hero h2,
+.section-title h2 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.05;
+  letter-spacing: -0.06em;
+}
+
+.hero p,
+.section-title p,
+.card p,
+.goal p,
+.dark-card span {
+  color: #64748b;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.primary,
+.secondary {
+  width: 100%;
+  border: 0;
+  border-radius: 18px;
+  padding: 16px 18px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primary {
+  background: #0f172a;
+  color: white;
+  margin-top: 18px;
+}
+
+.primary:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.secondary {
+  background: white;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+small {
+  display: block;
+  text-align: center;
+  margin-top: 14px;
+  color: #94a3b8;
+}
+
+.section-title {
+  margin-bottom: 22px;
+}
+
+.goal-list {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.goal {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: white;
+  border-radius: 24px;
+  padding: 20px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.goal.selected {
+  border-color: #0f172a;
+}
+
+.goal-head,
+.card-head,
+.category-row,
+.money-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.goal h3,
+.card h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.goal span,
+.card-head span,
+.category-row span,
+.money-row {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.dashboard {
+  display: grid;
+  gap: 16px;
+}
+
+.dark-card {
+  background: #0f172a;
+  color: white;
+}
+
+.dark-card p {
+  margin: 0 0 8px 0;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.dark-card h2 {
+  margin: 0;
+  font-size: 38px;
+  letter-spacing: -0.06em;
+}
+
+.dark-card span {
+  display: block;
+  margin-top: 14px;
+  color: #cbd5e1;
+}
+
+.categories {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.category-row {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.bar,
+.big-bar {
+  width: 100%;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 8px;
+}
+
+.big-bar {
+  height: 12px;
+  margin: 18px 0 10px;
+}
+
+.bar-fill,
+.big-bar-fill {
+  height: 100%;
+  background: #0f172a;
+  border-radius: 999px;
+}
+
+.money-row {
+  font-size: 13px;
+}
