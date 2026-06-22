@@ -2,14 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-const initialExpenses = [
-  { id: 1, name: "Uber", category: "Transporte", amount: 42500, date: "2026-06-03" },
-  { id: 2, name: "Starbucks", category: "Cafés", amount: 28600, date: "2026-06-05" },
-  { id: 3, name: "PedidosYa", category: "Delivery", amount: 94800, date: "2026-06-07" },
-  { id: 4, name: "Líder", category: "Supermercado", amount: 76300, date: "2026-06-09" },
-  { id: 5, name: "Spotify", category: "Suscripciones", amount: 4550, date: "2026-06-10" },
-  { id: 6, name: "Cine Hoyts", category: "Entretención", amount: 22000, date: "2026-06-12" },
-];
+const initialExpenses = [];
 
 const initialGoals = [
   {
@@ -36,7 +29,7 @@ const aiGoalSuggestions = [
   {
     id: 101,
     title: "Crear fondo de emergencia",
-    description: "Construir un colchón financiero para imprevistos sin usar deuda.",
+    description: "Construir un colchón financiero para cubrir imprevistos sin usar deuda.",
     target: 900000,
     current: 250000,
     monthlySuggestion: 85000,
@@ -72,8 +65,10 @@ function formatCLP(value) {
 
 function formatDate(date) {
   if (!date) return "Sin fecha";
+
   const parts = date.split("-");
   if (parts.length !== 3) return date;
+
   return `${parts[2]}-${parts[1]}-${parts[0]}`;
 }
 
@@ -173,18 +168,24 @@ export default function Home() {
       .map(([category, amount]) => ({
         category,
         amount,
-        percentage: totalExpenses > 0 ? Math.round((amount / totalExpenses) * 100) : 0,
+        percentage:
+          totalExpenses > 0 ? Math.round((amount / totalExpenses) * 100) : 0,
       }))
       .sort((a, b) => b.amount - a.amount);
   }, [expenses, totalExpenses]);
 
   const activeGoal = goals.find((goal) => goal.id === activeGoalId) || goals[0];
-  const topCategory = categories[0] || { category: "Sin datos", amount: 0 };
+
+  const topCategory = categories[0] || {
+    category: "Sin gastos registrados",
+    amount: 0,
+  };
+
   const deliveryCategory = categories.find((item) => item.category === "Delivery");
 
   const suggestedSaving = deliveryCategory
     ? Math.round(deliveryCategory.amount * 0.3)
-    : 45000;
+    : 0;
 
   const predictedCategory = newDescription
     ? categorizeExpense(newDescription)
@@ -221,6 +222,10 @@ export default function Home() {
     setNewAmount("");
     setNewDescription("");
     setTab("dashboard");
+  }
+
+  function deleteExpense(expenseId) {
+    setExpenses(expenses.filter((expense) => expense.id !== expenseId));
   }
 
   function addGoal(goal) {
@@ -261,8 +266,8 @@ export default function Home() {
                 <p className="eyebrow light">Inicio</p>
                 <h2>Ordena tus gastos y avanza hacia tus metas.</h2>
                 <p>
-                  Ingresa movimientos manualmente, FinApp los categoriza y actualiza
-                  tu dashboard en tiempo real.
+                  Ingresa movimientos manualmente, FinApp los categoriza y
+                  actualiza tu dashboard en tiempo real.
                 </p>
 
                 <button className="dark-button" onClick={() => setTab("add")}>
@@ -299,8 +304,9 @@ export default function Home() {
                 </div>
 
                 <p>
-                  Recomendación: ahorra {formatCLP(activeGoal.monthlySuggestion)} al mes
-                  para acercarte a tu objetivo.
+                  Recomendación: ahorra{" "}
+                  {formatCLP(activeGoal.monthlySuggestion)} al mes para acercarte
+                  a tu objetivo.
                 </p>
               </div>
 
@@ -319,8 +325,11 @@ export default function Home() {
                 <p>Dashboard de gastos</p>
                 <h2>{formatCLP(totalExpenses)}</h2>
                 <span>
-                  Tu mayor categoría de gasto es {topCategory.category}, con{" "}
-                  {formatCLP(topCategory.amount)} este mes.
+                  {expenses.length === 0
+                    ? "Aún no hay gastos registrados. Agrega un movimiento para ver el análisis."
+                    : `Tu mayor categoría de gasto es ${topCategory.category}, con ${formatCLP(
+                        topCategory.amount
+                      )} este mes.`}
                 </span>
               </div>
 
@@ -343,6 +352,19 @@ export default function Home() {
                 </div>
 
                 <div className="list">
+                  {categories.length === 0 && (
+                    <div className="empty-state">
+                      <h3>No hay categorías todavía</h3>
+                      <p>
+                        Agrega un gasto para que FinApp lo clasifique
+                        automáticamente.
+                      </p>
+                      <button className="soft-button" onClick={() => setTab("add")}>
+                        Agregar gasto
+                      </button>
+                    </div>
+                  )}
+
                   {categories.map((item) => (
                     <div key={item.category} className="category">
                       <div className="category-row">
@@ -373,7 +395,8 @@ export default function Home() {
                 <p className="eyebrow">Agregar gasto</p>
                 <h2>Ingresa un movimiento</h2>
                 <p>
-                  La app clasifica automáticamente el gasto según la descripción ingresada.
+                  La app clasifica automáticamente el gasto según la descripción
+                  ingresada.
                 </p>
               </div>
 
@@ -420,8 +443,8 @@ export default function Home() {
               <div className="card">
                 <p className="eyebrow">Ejemplos para probar</p>
                 <p>
-                  Escribe “Uber” para Transporte, “Rappi” para Delivery, “Spotify” para
-                  Suscripciones o “Líder” para Supermercado.
+                  Escribe “Uber” para Transporte, “Rappi” para Delivery,
+                  “Spotify” para Suscripciones o “Líder” para Supermercado.
                 </p>
               </div>
             </div>
@@ -433,12 +456,26 @@ export default function Home() {
                 <p className="eyebrow">Gastos categorizados</p>
                 <h2>Movimientos del mes</h2>
                 <p>
-                  Cada movimiento ingresado queda registrado y clasificado automáticamente.
+                  Cada movimiento ingresado queda registrado y clasificado
+                  automáticamente.
                 </p>
               </div>
 
               <div className="card">
                 <div className="list">
+                  {expenses.length === 0 && (
+                    <div className="empty-state">
+                      <h3>No hay gastos registrados</h3>
+                      <p>
+                        Agrega tu primer movimiento para ver el dashboard
+                        actualizado.
+                      </p>
+                      <button className="soft-button" onClick={() => setTab("add")}>
+                        Agregar gasto
+                      </button>
+                    </div>
+                  )}
+
                   {expenses.map((expense) => (
                     <div key={expense.id} className="expense-row">
                       <div>
@@ -447,7 +484,16 @@ export default function Home() {
                           {expense.category} · {formatDate(expense.date)}
                         </p>
                       </div>
-                      <strong>{formatCLP(expense.amount)}</strong>
+
+                      <div className="expense-actions">
+                        <strong>{formatCLP(expense.amount)}</strong>
+                        <button
+                          className="delete-button"
+                          onClick={() => deleteExpense(expense.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -461,7 +507,8 @@ export default function Home() {
                 <p className="eyebrow">Seguimiento de metas</p>
                 <h2>Tus objetivos financieros</h2>
                 <p>
-                  Las metas convierten el control financiero en un hábito concreto y medible.
+                  Las metas convierten el control financiero en un hábito
+                  concreto y medible.
                 </p>
               </div>
 
@@ -470,7 +517,9 @@ export default function Home() {
                   <button
                     key={goal.id}
                     className={
-                      goal.id === activeGoalId ? "goal-card selected" : "goal-card"
+                      goal.id === activeGoalId
+                        ? "goal-card selected"
+                        : "goal-card"
                     }
                     onClick={() => setActiveGoalId(goal.id)}
                   >
@@ -511,17 +560,22 @@ export default function Home() {
                 <p className="eyebrow">Metas sugeridas por IA</p>
                 <h2>Elige una recomendación</h2>
                 <p>
-                  Estas metas están simuladas para el MVP, pero muestran cómo la app traduciría
-                  los gastos en objetivos financieros.
+                  Estas metas están simuladas para el MVP, pero muestran cómo la
+                  app traduciría los gastos en objetivos financieros.
                 </p>
               </div>
 
               <div className="ai-card">
                 <p className="eyebrow light">Perfil detectado</p>
-                <h3>Usuario con gasto variable relevante</h3>
+                <h3>
+                  {expenses.length === 0
+                    ? "Aún no hay suficientes datos"
+                    : "Usuario con gasto variable relevante"}
+                </h3>
                 <p>
-                  Según tus movimientos, FinApp detecta oportunidades de ahorro en{" "}
-                  {topCategory.category}, gastos recurrentes y consumo impulsivo.
+                  {expenses.length === 0
+                    ? "Agrega algunos movimientos para que FinApp pueda detectar oportunidades de ahorro."
+                    : `Según tus movimientos, FinApp detecta oportunidades de ahorro en ${topCategory.category}, gastos recurrentes y consumo impulsivo.`}
                 </p>
               </div>
 
@@ -553,36 +607,57 @@ export default function Home() {
                 <p className="eyebrow">Insights personalizados</p>
                 <h2>Acciones concretas para ahorrar</h2>
                 <p>
-                  El objetivo no es mostrar más datos, sino traducirlos en decisiones simples.
+                  El objetivo no es mostrar más datos, sino traducirlos en
+                  decisiones simples.
                 </p>
               </div>
 
-              <div className="insight-card">
-                <span>01</span>
-                <h3>Reduce tu mayor categoría</h3>
-                <p>
-                  Tu mayor gasto es {topCategory.category}. Si reduces esa categoría en 15%,
-                  podrías ahorrar cerca de {formatCLP(Math.round(topCategory.amount * 0.15))}.
-                </p>
-              </div>
+              {expenses.length === 0 && (
+                <div className="empty-state">
+                  <h3>Aún no hay insights</h3>
+                  <p>
+                    Agrega gastos para que FinApp genere recomendaciones
+                    personalizadas.
+                  </p>
+                  <button className="soft-button" onClick={() => setTab("add")}>
+                    Agregar gasto
+                  </button>
+                </div>
+              )}
 
-              <div className="insight-card">
-                <span>02</span>
-                <h3>Revisa gastos recurrentes</h3>
-                <p>
-                  Detectamos posibles suscripciones o cargos recurrentes. En la app final,
-                  FinApp alertaría estos cargos para decidir si mantenerlos o cancelarlos.
-                </p>
-              </div>
+              {expenses.length > 0 && (
+                <>
+                  <div className="insight-card">
+                    <span>01</span>
+                    <h3>Reduce tu mayor categoría</h3>
+                    <p>
+                      Tu mayor gasto es {topCategory.category}. Si reduces esa
+                      categoría en 15%, podrías ahorrar cerca de{" "}
+                      {formatCLP(Math.round(topCategory.amount * 0.15))}.
+                    </p>
+                  </div>
 
-              <div className="insight-card">
-                <span>03</span>
-                <h3>Conecta gasto con meta</h3>
-                <p>
-                  Si mantienes el ahorro sugerido de {formatCLP(activeGoal.monthlySuggestion)}{" "}
-                  al mes, avanzarás más rápido hacia “{activeGoal.title}”.
-                </p>
-              </div>
+                  <div className="insight-card">
+                    <span>02</span>
+                    <h3>Revisa gastos recurrentes</h3>
+                    <p>
+                      Detectamos posibles suscripciones o cargos recurrentes. En
+                      la app final, FinApp alertaría estos cargos para decidir si
+                      mantenerlos o cancelarlos.
+                    </p>
+                  </div>
+
+                  <div className="insight-card">
+                    <span>03</span>
+                    <h3>Conecta gasto con meta</h3>
+                    <p>
+                      Si mantienes el ahorro sugerido de{" "}
+                      {formatCLP(activeGoal.monthlySuggestion)} al mes, avanzarás
+                      más rápido hacia “{activeGoal.title}”.
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </section>
