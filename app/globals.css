@@ -6,7 +6,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #f7f8fa;
+  background: #eef1f5;
   color: #0f172a;
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -15,200 +15,212 @@ button {
   font-family: inherit;
 }
 
-.page {
+.app {
   min-height: 100vh;
-  background: #f7f8fa;
+  background:
+    radial-gradient(circle at top, rgba(15, 23, 42, 0.08), transparent 34%),
+    #eef1f5;
 }
 
-.phone {
+.shell {
   width: 100%;
-  max-width: 430px;
+  max-width: 460px;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 22px 18px 98px;
 }
 
-.topbar,
-.goal-head,
-.card-head,
-.category-row,
-.money-row {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.topbar {
-  margin-bottom: 28px;
-}
-
-.topbar h1 {
-  margin: 0;
-  font-size: 21px;
-}
-
-.eyebrow {
-  margin: 0 0 6px 0;
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.pill,
-.progress-pill {
-  background: white;
-  color: #64748b;
-  padding: 7px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.center {
-  min-height: calc(100vh - 110px);
-  display: flex;
-  align-items: center;
-}
-
-.card,
-.dark-card,
-.goal {
-  border-radius: 28px;
-  padding: 22px;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-}
-
-.card,
-.goal {
-  background: white;
-}
-
-.hero {
-  padding: 30px;
-}
-
-.icon {
-  width: 58px;
-  height: 58px;
-  border-radius: 20px;
-  background: #0f172a;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  font-weight: 800;
-  margin-bottom: 26px;
-}
-
-.hero h2,
-.section-title h2 {
-  margin: 0;
-  font-size: 32px;
-  line-height: 1.05;
-}
-
-.hero p,
-.section-title p,
-.card p,
-.goal p,
-.dark-card span {
-  color: #64748b;
-  line-height: 1.6;
-  font-size: 15px;
-}
-
-.primary,
-.secondary {
-  width: 100%;
-  border: 0;
-  border-radius: 18px;
-  padding: 16px 18px;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.primary {
-  background: #0f172a;
-  color: white;
-  margin-top: 18px;
-}
-
-.primary:disabled {
-  background: #cbd5e1;
-  cursor: not-allowed;
-}
-
-.secondary {
-  background: white;
-  color: #334155;
-  border: 1px solid #e2e8f0;
-}
-
-small {
-  display: block;
-  text-align: center;
-  margin-top: 14px;
-  color: #94a3b8;
-}
-
-.section-title {
   margin-bottom: 22px;
 }
 
-.goal-list,
-.dashboard,
-.categories {
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.04em;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.light {
+  color: #cbd5e1;
+}
+
+.status-pill,
+.tag,
+.progress-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.status-pill {
+  background: white;
+  color: #64748b;
+  padding: 8px 12px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.tag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.content {
+  min-height: calc(100vh - 160px);
+}
+
+.screen {
   display: grid;
   gap: 16px;
 }
 
-.goal {
-  width: 100%;
-  text-align: left;
-  border: 1px solid transparent;
-  cursor: pointer;
+.hero-card,
+.card,
+.dark-card,
+.ai-card,
+.insight-card,
+.mini-card,
+.goal-card {
+  border-radius: 28px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
 }
 
-.goal.selected {
-  border-color: #0f172a;
-}
-
-.goal h3,
-.card h3 {
-  margin: 0;
-  font-size: 17px;
-}
-
-.goal span,
-.card-head span,
-.category-row span,
-.money-row {
-  color: #64748b;
-  font-size: 13px;
-}
-
-.dark-card {
+.hero-card {
   background: #0f172a;
   color: white;
+  padding: 28px;
+}
+
+.hero-card h2 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.04;
+  letter-spacing: -0.06em;
+}
+
+.hero-card p,
+.dark-card span,
+.ai-card p {
+  color: #cbd5e1;
+  line-height: 1.55;
+  font-size: 15px;
+}
+
+.card,
+.mini-card,
+.goal-card {
+  background: white;
+  padding: 22px;
+}
+
+.dark-card,
+.ai-card {
+  background: #0f172a;
+  color: white;
+  padding: 24px;
 }
 
 .dark-card p {
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
   color: #cbd5e1;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .dark-card h2 {
   margin: 0;
-  font-size: 38px;
+  font-size: 40px;
+  letter-spacing: -0.06em;
 }
 
-.dark-card span {
-  display: block;
-  margin-top: 14px;
-  color: #cbd5e1;
+.ai-card h3 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.card h3,
+.goal-card h3,
+.insight-card h3,
+.mini-card h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.card p,
+.goal-card p,
+.insight-card p,
+.section-title p,
+.mini-card p {
+  color: #64748b;
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.section-title h2 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mini-card {
+  padding: 18px;
+}
+
+.mini-card p {
+  margin: 0 0 8px;
+}
+
+.mini-card h3 {
+  font-size: 22px;
+  letter-spacing: -0.04em;
+}
+
+.card-head,
+.category-row,
+.money-row,
+.expense-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-head span,
+.category-row span,
+.money-row,
+.expense-row p {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.list {
+  display: grid;
+  gap: 14px;
+}
+
+.category-row {
+  margin-bottom: 8px;
 }
 
 .bar,
@@ -225,7 +237,7 @@ small {
 
 .big-bar {
   height: 12px;
-  margin: 18px 0 10px;
+  margin: 16px 0 10px;
 }
 
 .bar-fill,
@@ -233,4 +245,117 @@ small {
   height: 100%;
   background: #0f172a;
   border-radius: 999px;
+}
+
+.dark-button,
+.soft-button {
+  width: 100%;
+  border: 0;
+  border-radius: 18px;
+  padding: 15px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.dark-button {
+  background: #0f172a;
+  color: white;
+  margin-top: 4px;
+}
+
+.hero-card .dark-button {
+  background: white;
+  color: #0f172a;
+  margin-top: 16px;
+}
+
+.soft-button {
+  background: #f1f5f9;
+  color: #0f172a;
+  margin-top: 8px;
+}
+
+.goal-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.goal-card.selected {
+  border-color: #0f172a;
+}
+
+.expense-row {
+  border-bottom: 1px solid #eef2f7;
+  padding-bottom: 14px;
+}
+
+.expense-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.expense-row h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.expense-row p {
+  margin: 4px 0 0;
+}
+
+.insight-card {
+  background: white;
+  padding: 22px;
+  border-left: 5px solid #0f172a;
+}
+
+.insight-card span {
+  display: inline-flex;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #64748b;
+}
+
+.nav {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 24px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.16);
+}
+
+.nav button {
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  border-radius: 16px;
+  padding: 10px 4px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.nav button.active {
+  background: #0f172a;
+  color: white;
+}
+
+@media (min-width: 900px) {
+  .shell {
+    max-width: 520px;
+  }
 }
