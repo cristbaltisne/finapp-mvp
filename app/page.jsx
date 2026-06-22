@@ -154,6 +154,8 @@ export default function Home() {
   const [newDescription, setNewDescription] = useState("");
   const [lastAddedCategory, setLastAddedCategory] = useState("");
 
+  const [goalAmounts, setGoalAmounts] = useState({});
+
   const totalExpenses = useMemo(() => {
     return expenses.reduce((sum, item) => sum + item.amount, 0);
   }, [expenses]);
@@ -226,6 +228,33 @@ export default function Home() {
 
   function deleteExpense(expenseId) {
     setExpenses(expenses.filter((expense) => expense.id !== expenseId));
+  }
+
+  function addMoneyToGoal(goalId) {
+    const amount = Math.abs(Number(goalAmounts[goalId]));
+
+    if (!amount || amount <= 0) {
+      alert("Ingresa un monto válido para agregar a la meta.");
+      return;
+    }
+
+    setGoals(
+      goals.map((goal) => {
+        if (goal.id !== goalId) return goal;
+
+        return {
+          ...goal,
+          current: Math.min(goal.current + amount, goal.target),
+        };
+      })
+    );
+
+    setGoalAmounts({
+      ...goalAmounts,
+      [goalId]: "",
+    });
+
+    setActiveGoalId(goalId);
   }
 
   function addGoal(goal) {
@@ -304,7 +333,8 @@ export default function Home() {
                 </div>
 
                 <p>
-                  Recomendación: ahorra{" "}
+                  Llevas {formatCLP(activeGoal.current)} de{" "}
+                  {formatCLP(activeGoal.target)}. Recomendación: ahorra{" "}
                   {formatCLP(activeGoal.monthlySuggestion)} al mes para acercarte
                   a tu objetivo.
                 </p>
@@ -507,21 +537,20 @@ export default function Home() {
                 <p className="eyebrow">Seguimiento de metas</p>
                 <h2>Tus objetivos financieros</h2>
                 <p>
-                  Las metas convierten el control financiero en un hábito
-                  concreto y medible.
+                  Puedes agregar dinero ahorrado a cada meta y ver cómo aumenta
+                  el avance automáticamente.
                 </p>
               </div>
 
               <div className="list">
                 {goals.map((goal) => (
-                  <button
+                  <div
                     key={goal.id}
                     className={
                       goal.id === activeGoalId
                         ? "goal-card selected"
                         : "goal-card"
                     }
-                    onClick={() => setActiveGoalId(goal.id)}
                   >
                     <div className="card-head">
                       <div>
@@ -544,7 +573,35 @@ export default function Home() {
                       <span>{formatCLP(goal.current)}</span>
                       <span>{formatCLP(goal.target)}</span>
                     </div>
-                  </button>
+
+                    <div className="goal-contribution">
+                      <input
+                        type="number"
+                        placeholder="Ej: 30000"
+                        value={goalAmounts[goal.id] || ""}
+                        onChange={(event) =>
+                          setGoalAmounts({
+                            ...goalAmounts,
+                            [goal.id]: event.target.value,
+                          })
+                        }
+                      />
+
+                      <button
+                        className="soft-button"
+                        onClick={() => addMoneyToGoal(goal.id)}
+                      >
+                        Agregar ahorro
+                      </button>
+                    </div>
+
+                    <button
+                      className="goal-main-button"
+                      onClick={() => setActiveGoalId(goal.id)}
+                    >
+                      Usar como meta principal
+                    </button>
+                  </div>
                 ))}
               </div>
 
