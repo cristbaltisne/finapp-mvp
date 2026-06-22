@@ -1,472 +1,769 @@
-* {
-  box-sizing: border-box;
+"use client";
+
+import { useMemo, useState } from "react";
+
+const initialExpenses = [];
+
+const initialGoals = [
+  {
+    id: 1,
+    title: "Ahorrar para un viaje",
+    description: "Juntar plata todos los meses para financiar un viaje sin endeudarse.",
+    target: 600000,
+    current: 180000,
+    monthlySuggestion: 70000,
+    tag: "Viaje",
+  },
+  {
+    id: 2,
+    title: "Reducir gastos hormiga",
+    description: "Bajar gastos pequeños y frecuentes que se acumulan durante el mes.",
+    target: 250000,
+    current: 60000,
+    monthlySuggestion: 40000,
+    tag: "Control",
+  },
+];
+
+const aiGoalSuggestions = [
+  {
+    id: 101,
+    title: "Crear fondo de emergencia",
+    description: "Construir un colchón financiero para cubrir imprevistos sin usar deuda.",
+    target: 900000,
+    current: 250000,
+    monthlySuggestion: 85000,
+    tag: "Seguridad",
+  },
+  {
+    id: 102,
+    title: "Bajar delivery en 30%",
+    description: "Reducir pedidos de comida y redirigir ese ahorro a una meta personal.",
+    target: 180000,
+    current: 30000,
+    monthlySuggestion: 45000,
+    tag: "Ahorro",
+  },
+  {
+    id: 103,
+    title: "Ahorrar para estudios",
+    description: "Separar un monto mensual para financiar cursos, diplomados o un MBA.",
+    target: 1200000,
+    current: 200000,
+    monthlySuggestion: 100000,
+    tag: "Educación",
+  },
+];
+
+function formatCLP(value) {
+  return new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  background: #eef1f5;
-  color: #0f172a;
-  font-family: Arial, Helvetica, sans-serif;
+function formatDate(date) {
+  if (!date) return "Sin fecha";
+
+  const parts = date.split("-");
+  if (parts.length !== 3) return date;
+
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
 }
 
-button {
-  font-family: inherit;
+function getProgress(goal) {
+  return Math.min(Math.round((goal.current / goal.target) * 100), 100);
 }
 
-.app {
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(15, 23, 42, 0.08), transparent 34%),
-    #eef1f5;
-}
+function categorizeExpense(description) {
+  const text = description.toLowerCase();
 
-.shell {
-  width: 100%;
-  max-width: 460px;
-  min-height: 100vh;
-  margin: 0 auto;
-  padding: 22px 18px 98px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 22px;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 24px;
-  letter-spacing: -0.04em;
-}
-
-.eyebrow {
-  margin: 0 0 6px;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.light {
-  color: #cbd5e1;
-}
-
-.status-pill,
-.tag,
-.progress-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.status-pill {
-  background: white;
-  color: #64748b;
-  padding: 8px 12px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
-}
-
-.tag {
-  background: #f1f5f9;
-  color: #475569;
-  padding: 6px 10px;
-  margin-bottom: 8px;
-}
-
-.content {
-  min-height: calc(100vh - 160px);
-}
-
-.screen {
-  display: grid;
-  gap: 16px;
-}
-
-.hero-card,
-.card,
-.dark-card,
-.ai-card,
-.insight-card,
-.mini-card,
-.goal-card {
-  border-radius: 28px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
-}
-
-.hero-card {
-  background: #0f172a;
-  color: white;
-  padding: 28px;
-}
-
-.hero-card h2 {
-  margin: 0;
-  font-size: 32px;
-  line-height: 1.04;
-  letter-spacing: -0.06em;
-}
-
-.hero-card p,
-.dark-card span,
-.ai-card p {
-  color: #cbd5e1;
-  line-height: 1.55;
-  font-size: 15px;
-}
-
-.card,
-.mini-card,
-.goal-card {
-  background: white;
-  padding: 22px;
-}
-
-.dark-card,
-.ai-card {
-  background: #0f172a;
-  color: white;
-  padding: 24px;
-}
-
-.dark-card p {
-  margin: 0 0 8px;
-  color: #cbd5e1;
-  font-size: 13px;
-}
-
-.dark-card h2 {
-  margin: 0;
-  font-size: 40px;
-  letter-spacing: -0.06em;
-}
-
-.ai-card h3 {
-  margin: 0;
-  font-size: 21px;
-}
-
-.card h3,
-.goal-card h3,
-.insight-card h3,
-.mini-card h3 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.card p,
-.goal-card p,
-.insight-card p,
-.section-title p,
-.mini-card p {
-  color: #64748b;
-  line-height: 1.55;
-  font-size: 14px;
-}
-
-.section-title h2 {
-  margin: 0;
-  font-size: 28px;
-  line-height: 1.05;
-  letter-spacing: -0.05em;
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.mini-card {
-  padding: 18px;
-}
-
-.mini-card p {
-  margin: 0 0 8px;
-}
-
-.mini-card h3 {
-  font-size: 22px;
-  letter-spacing: -0.04em;
-}
-
-.card-head,
-.category-row,
-.money-row,
-.expense-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.card-head span,
-.category-row span,
-.money-row,
-.expense-row p {
-  color: #64748b;
-  font-size: 13px;
-}
-
-.list {
-  display: grid;
-  gap: 14px;
-}
-
-.category-row {
-  margin-bottom: 8px;
-}
-
-.bar,
-.big-bar {
-  width: 100%;
-  background: #f1f5f9;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.bar {
-  height: 8px;
-}
-
-.big-bar {
-  height: 12px;
-  margin: 16px 0 10px;
-}
-
-.bar-fill,
-.big-bar-fill {
-  height: 100%;
-  background: #0f172a;
-  border-radius: 999px;
-}
-
-.dark-button,
-.soft-button {
-  width: 100%;
-  border: 0;
-  border-radius: 18px;
-  padding: 15px 18px;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.dark-button {
-  background: #0f172a;
-  color: white;
-  margin-top: 4px;
-}
-
-.hero-card .dark-button {
-  background: white;
-  color: #0f172a;
-  margin-top: 16px;
-}
-
-.soft-button {
-  background: #f1f5f9;
-  color: #0f172a;
-  margin-top: 8px;
-}
-
-.goal-card {
-  width: 100%;
-  text-align: left;
-  border: 1px solid transparent;
-  cursor: pointer;
-}
-
-.goal-card.selected {
-  border-color: #0f172a;
-}
-
-.expense-row {
-  border-bottom: 1px solid #eef2f7;
-  padding-bottom: 14px;
-}
-
-.expense-row:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.expense-row h3 {
-  margin: 0;
-  font-size: 15px;
-}
-
-.expense-row p {
-  margin: 4px 0 0;
-}
-
-.insight-card {
-  background: white;
-  padding: 22px;
-  border-left: 5px solid #0f172a;
-}
-
-.insight-card span {
-  display: inline-flex;
-  margin-bottom: 10px;
-  font-size: 12px;
-  font-weight: 900;
-  color: #64748b;
-}
-
-.nav {
-  position: fixed;
-  left: 50%;
-  bottom: 16px;
-  transform: translateX(-50%);
-  width: calc(100% - 24px);
-  max-width: 440px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 24px;
-  padding: 8px;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 4px;
-  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.16);
-}
-
-.nav button {
-  border: 0;
-  background: transparent;
-  color: #64748b;
-  border-radius: 16px;
-  padding: 10px 4px;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.nav button.active {
-  background: #0f172a;
-  color: white;
-}
-
-@media (min-width: 900px) {
-  .shell {
-    max-width: 520px;
+  if (
+    text.includes("uber") ||
+    text.includes("cabify") ||
+    text.includes("copec") ||
+    text.includes("bencina") ||
+    text.includes("metro") ||
+    text.includes("micro")
+  ) {
+    return "Transporte";
   }
-}
-.form-card {
-  background: white;
-  border-radius: 28px;
-  padding: 22px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
-  display: grid;
-  gap: 16px;
+
+  if (
+    text.includes("rappi") ||
+    text.includes("pedidosya") ||
+    text.includes("delivery") ||
+    text.includes("mcdonald") ||
+    text.includes("burger") ||
+    text.includes("pizza")
+  ) {
+    return "Delivery";
+  }
+
+  if (
+    text.includes("lider") ||
+    text.includes("líder") ||
+    text.includes("jumbo") ||
+    text.includes("unimarc") ||
+    text.includes("tottus")
+  ) {
+    return "Supermercado";
+  }
+
+  if (
+    text.includes("starbucks") ||
+    text.includes("cafe") ||
+    text.includes("café") ||
+    text.includes("juan valdez")
+  ) {
+    return "Cafés";
+  }
+
+  if (
+    text.includes("spotify") ||
+    text.includes("netflix") ||
+    text.includes("youtube") ||
+    text.includes("apple") ||
+    text.includes("suscripcion") ||
+    text.includes("suscripción")
+  ) {
+    return "Suscripciones";
+  }
+
+  if (
+    text.includes("cine") ||
+    text.includes("bar") ||
+    text.includes("concierto") ||
+    text.includes("entrada")
+  ) {
+    return "Entretención";
+  }
+
+  return "Otros";
 }
 
-.form-card label {
-  display: grid;
-  gap: 8px;
-  color: #334155;
-  font-size: 13px;
-  font-weight: 800;
-}
+export default function Home() {
+  const [tab, setTab] = useState("home");
+  const [expenses, setExpenses] = useState(initialExpenses);
+  const [goals, setGoals] = useState(initialGoals);
+  const [activeGoalId, setActiveGoalId] = useState(initialGoals[0].id);
 
-.form-card input {
-  width: 100%;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 14px 14px;
-  font-size: 15px;
-  color: #0f172a;
-  background: #f8fafc;
-  outline: none;
-}
+  const [newDate, setNewDate] = useState("");
+  const [newAmount, setNewAmount] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [lastAddedCategory, setLastAddedCategory] = useState("");
 
-.form-card input:focus {
-  border-color: #0f172a;
-  background: white;
-}
+  const [goalAmounts, setGoalAmounts] = useState({});
 
-.detected-card {
-  background: #f1f5f9;
-  border-radius: 22px;
-  padding: 18px;
-}
+  const totalExpenses = useMemo(() => {
+    return expenses.reduce((sum, item) => sum + item.amount, 0);
+  }, [expenses]);
 
-.detected-card p {
-  margin: 0 0 6px;
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 700;
-}
+  const categories = useMemo(() => {
+    const grouped = expenses.reduce((acc, item) => {
+      acc[item.category] = (acc[item.category] || 0) + item.amount;
+      return acc;
+    }, {});
 
-.detected-card h3 {
-  margin: 0;
-  color: #0f172a;
-  font-size: 20px;
-}
+    return Object.entries(grouped)
+      .map(([category, amount]) => ({
+        category,
+        amount,
+        percentage:
+          totalExpenses > 0 ? Math.round((amount / totalExpenses) * 100) : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [expenses, totalExpenses]);
 
-.success-card {
-  background: #ecfdf5;
-  border: 1px solid #bbf7d0;
-  color: #166534;
-  border-radius: 22px;
-  padding: 16px;
-  font-size: 14px;
-  line-height: 1.5;
-}
+  const activeGoal = goals.find((goal) => goal.id === activeGoalId) || goals[0];
 
-.nav {
-  grid-template-columns: repeat(7, 1fr);
-}
+  const topCategory = categories[0] || {
+    category: "Sin gastos registrados",
+    amount: 0,
+  };
 
-.nav button {
-  font-size: 10px;
-  padding: 10px 2px;
-}
-.expense-actions {
-  display: grid;
-  gap: 6px;
-  justify-items: end;
-}
+  const deliveryCategory = categories.find((item) => item.category === "Delivery");
 
-.delete-button {
-  border: 0;
-  background: #fee2e2;
-  color: #991b1b;
-  border-radius: 999px;
-  padding: 7px 10px;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-}
+  const suggestedSaving = deliveryCategory
+    ? Math.round(deliveryCategory.amount * 0.3)
+    : 0;
 
-.delete-button:hover {
-  background: #fecaca;
-}
+  const predictedCategory = newDescription
+    ? categorizeExpense(newDescription)
+    : "Esperando descripción";
 
-.empty-state {
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: 22px;
-  padding: 22px;
-  text-align: center;
-}
+  function addExpense(event) {
+    event.preventDefault();
 
-.empty-state h3 {
-  margin: 0 0 8px;
-  font-size: 17px;
-  color: #0f172a;
-}
+    if (!newDate || !newAmount || !newDescription) {
+      alert("Completa fecha, monto y descripción.");
+      return;
+    }
 
-.empty-state p {
-  margin: 0 0 12px;
-  color: #64748b;
-  font-size: 14px;
-  line-height: 1.5;
+    const amountAsNumber = Math.abs(Number(newAmount));
+
+    if (!amountAsNumber || amountAsNumber <= 0) {
+      alert("Ingresa un monto válido.");
+      return;
+    }
+
+    const category = categorizeExpense(newDescription);
+
+    const expense = {
+      id: Date.now(),
+      name: newDescription,
+      category,
+      amount: amountAsNumber,
+      date: newDate,
+    };
+
+    setExpenses([expense, ...expenses]);
+    setLastAddedCategory(category);
+    setNewDate("");
+    setNewAmount("");
+    setNewDescription("");
+    setTab("dashboard");
+  }
+
+  function deleteExpense(expenseId) {
+    setExpenses(expenses.filter((expense) => expense.id !== expenseId));
+  }
+
+  function addMoneyToGoal(goalId) {
+    const amount = Math.abs(Number(goalAmounts[goalId]));
+
+    if (!amount || amount <= 0) {
+      alert("Ingresa un monto válido para agregar a la meta.");
+      return;
+    }
+
+    setGoals(
+      goals.map((goal) => {
+        if (goal.id !== goalId) return goal;
+
+        return {
+          ...goal,
+          current: Math.min(goal.current + amount, goal.target),
+        };
+      })
+    );
+
+    setGoalAmounts({
+      ...goalAmounts,
+      [goalId]: "",
+    });
+
+    setActiveGoalId(goalId);
+  }
+
+  function addGoal(goal) {
+    const alreadyExists = goals.some((item) => item.title === goal.title);
+
+    if (!alreadyExists) {
+      const newGoal = {
+        ...goal,
+        id: Date.now(),
+      };
+
+      setGoals([...goals, newGoal]);
+      setActiveGoalId(newGoal.id);
+      setTab("goals");
+    } else {
+      const existingGoal = goals.find((item) => item.title === goal.title);
+      setActiveGoalId(existingGoal.id);
+      setTab("goals");
+    }
+  }
+
+  return (
+    <main className="app">
+      <div className="shell">
+        <header className="header">
+          <div>
+            <p className="eyebrow">FinApp</p>
+            <h1>Tu plata, más clara.</h1>
+          </div>
+
+          <div className="status-pill">MVP</div>
+        </header>
+
+        <section className="content">
+          {tab === "home" && (
+            <div className="screen">
+              <div className="hero-card">
+                <p className="eyebrow light">Inicio</p>
+                <h2>Ordena tus gastos y avanza hacia tus metas.</h2>
+                <p>
+                  Ingresa movimientos manualmente, FinApp los categoriza y
+                  actualiza tu dashboard en tiempo real.
+                </p>
+
+                <button className="dark-button" onClick={() => setTab("add")}>
+                  Agregar gasto
+                </button>
+              </div>
+
+              <div className="grid-2">
+                <div className="mini-card">
+                  <p>Gasto mensual</p>
+                  <h3>{formatCLP(totalExpenses)}</h3>
+                </div>
+
+                <div className="mini-card">
+                  <p>Ahorro potencial</p>
+                  <h3>{formatCLP(suggestedSaving)}</h3>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-head">
+                  <div>
+                    <p className="eyebrow">Meta principal</p>
+                    <h3>{activeGoal.title}</h3>
+                  </div>
+                  <span>{getProgress(activeGoal)}%</span>
+                </div>
+
+                <div className="big-bar">
+                  <div
+                    className="big-bar-fill"
+                    style={{ width: `${getProgress(activeGoal)}%` }}
+                  />
+                </div>
+
+                <p>
+                  Llevas {formatCLP(activeGoal.current)} de{" "}
+                  {formatCLP(activeGoal.target)}. Recomendación: ahorra{" "}
+                  {formatCLP(activeGoal.monthlySuggestion)} al mes para acercarte
+                  a tu objetivo.
+                </p>
+              </div>
+
+              {lastAddedCategory && (
+                <div className="success-card">
+                  Último gasto agregado y categorizado como:{" "}
+                  <strong>{lastAddedCategory}</strong>
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === "dashboard" && (
+            <div className="screen">
+              <div className="dark-card">
+                <p>Dashboard de gastos</p>
+                <h2>{formatCLP(totalExpenses)}</h2>
+                <span>
+                  {expenses.length === 0
+                    ? "Aún no hay gastos registrados. Agrega un movimiento para ver el análisis."
+                    : `Tu mayor categoría de gasto es ${topCategory.category}, con ${formatCLP(
+                        topCategory.amount
+                      )} este mes.`}
+                </span>
+              </div>
+
+              <div className="grid-2">
+                <div className="mini-card">
+                  <p>Categorías</p>
+                  <h3>{categories.length}</h3>
+                </div>
+
+                <div className="mini-card">
+                  <p>Movimientos</p>
+                  <h3>{expenses.length}</h3>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-head">
+                  <h3>Categorías mensuales</h3>
+                  <span>Junio</span>
+                </div>
+
+                <div className="list">
+                  {categories.length === 0 && (
+                    <div className="empty-state">
+                      <h3>No hay categorías todavía</h3>
+                      <p>
+                        Agrega un gasto para que FinApp lo clasifique
+                        automáticamente.
+                      </p>
+                      <button className="soft-button" onClick={() => setTab("add")}>
+                        Agregar gasto
+                      </button>
+                    </div>
+                  )}
+
+                  {categories.map((item) => (
+                    <div key={item.category} className="category">
+                      <div className="category-row">
+                        <strong>{item.category}</strong>
+                        <span>{formatCLP(item.amount)}</span>
+                      </div>
+
+                      <div className="bar">
+                        <div
+                          className="bar-fill"
+                          style={{ width: `${item.percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button className="dark-button" onClick={() => setTab("add")}>
+                Agregar nuevo gasto
+              </button>
+            </div>
+          )}
+
+          {tab === "add" && (
+            <div className="screen">
+              <div className="section-title">
+                <p className="eyebrow">Agregar gasto</p>
+                <h2>Ingresa un movimiento</h2>
+                <p>
+                  La app clasifica automáticamente el gasto según la descripción
+                  ingresada.
+                </p>
+              </div>
+
+              <form className="form-card" onSubmit={addExpense}>
+                <label>
+                  Fecha
+                  <input
+                    type="date"
+                    value={newDate}
+                    onChange={(event) => setNewDate(event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  Monto
+                  <input
+                    type="number"
+                    placeholder="Ej: 18500"
+                    value={newAmount}
+                    onChange={(event) => setNewAmount(event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  Descripción
+                  <input
+                    type="text"
+                    placeholder="Ej: Uber, Rappi, Spotify..."
+                    value={newDescription}
+                    onChange={(event) => setNewDescription(event.target.value)}
+                  />
+                </label>
+
+                <div className="detected-card">
+                  <p>Categoría detectada</p>
+                  <h3>{predictedCategory}</h3>
+                </div>
+
+                <button className="dark-button" type="submit">
+                  Agregar y actualizar dashboard
+                </button>
+              </form>
+
+              <div className="card">
+                <p className="eyebrow">Ejemplos para probar</p>
+                <p>
+                  Escribe “Uber” para Transporte, “Rappi” para Delivery,
+                  “Spotify” para Suscripciones o “Líder” para Supermercado.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {tab === "expenses" && (
+            <div className="screen">
+              <div className="section-title">
+                <p className="eyebrow">Gastos categorizados</p>
+                <h2>Movimientos del mes</h2>
+                <p>
+                  Cada movimiento ingresado queda registrado y clasificado
+                  automáticamente.
+                </p>
+              </div>
+
+              <div className="card">
+                <div className="list">
+                  {expenses.length === 0 && (
+                    <div className="empty-state">
+                      <h3>No hay gastos registrados</h3>
+                      <p>
+                        Agrega tu primer movimiento para ver el dashboard
+                        actualizado.
+                      </p>
+                      <button className="soft-button" onClick={() => setTab("add")}>
+                        Agregar gasto
+                      </button>
+                    </div>
+                  )}
+
+                  {expenses.map((expense) => (
+                    <div key={expense.id} className="expense-row">
+                      <div>
+                        <h3>{expense.name}</h3>
+                        <p>
+                          {expense.category} · {formatDate(expense.date)}
+                        </p>
+                      </div>
+
+                      <div className="expense-actions">
+                        <strong>{formatCLP(expense.amount)}</strong>
+                        <button
+                          className="delete-button"
+                          onClick={() => deleteExpense(expense.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab === "goals" && (
+            <div className="screen">
+              <div className="section-title">
+                <p className="eyebrow">Seguimiento de metas</p>
+                <h2>Tus objetivos financieros</h2>
+                <p>
+                  Puedes agregar dinero ahorrado a cada meta y ver cómo aumenta
+                  el avance automáticamente.
+                </p>
+              </div>
+
+              <div className="list">
+                {goals.map((goal) => (
+                  <div
+                    key={goal.id}
+                    className={
+                      goal.id === activeGoalId
+                        ? "goal-card selected"
+                        : "goal-card"
+                    }
+                  >
+                    <div className="card-head">
+                      <div>
+                        <span className="tag">{goal.tag}</span>
+                        <h3>{goal.title}</h3>
+                      </div>
+                      <strong>{getProgress(goal)}%</strong>
+                    </div>
+
+                    <p>{goal.description}</p>
+
+                    <div className="big-bar">
+                      <div
+                        className="big-bar-fill"
+                        style={{ width: `${getProgress(goal)}%` }}
+                      />
+                    </div>
+
+                    <div className="money-row">
+                      <span>{formatCLP(goal.current)}</span>
+                      <span>{formatCLP(goal.target)}</span>
+                    </div>
+
+                    <div className="goal-contribution">
+                      <input
+                        type="number"
+                        placeholder="Ej: 30000"
+                        value={goalAmounts[goal.id] || ""}
+                        onChange={(event) =>
+                          setGoalAmounts({
+                            ...goalAmounts,
+                            [goal.id]: event.target.value,
+                          })
+                        }
+                      />
+
+                      <button
+                        className="soft-button"
+                        onClick={() => addMoneyToGoal(goal.id)}
+                      >
+                        Agregar ahorro
+                      </button>
+                    </div>
+
+                    <button
+                      className="goal-main-button"
+                      onClick={() => setActiveGoalId(goal.id)}
+                    >
+                      Usar como meta principal
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <button className="dark-button" onClick={() => setTab("ai")}>
+                Proponer nueva meta con IA
+              </button>
+            </div>
+          )}
+
+          {tab === "ai" && (
+            <div className="screen">
+              <div className="section-title">
+                <p className="eyebrow">Metas sugeridas por IA</p>
+                <h2>Elige una recomendación</h2>
+                <p>
+                  Estas metas están simuladas para el MVP, pero muestran cómo la
+                  app traduciría los gastos en objetivos financieros.
+                </p>
+              </div>
+
+              <div className="ai-card">
+                <p className="eyebrow light">Perfil detectado</p>
+                <h3>
+                  {expenses.length === 0
+                    ? "Aún no hay suficientes datos"
+                    : "Usuario con gasto variable relevante"}
+                </h3>
+                <p>
+                  {expenses.length === 0
+                    ? "Agrega algunos movimientos para que FinApp pueda detectar oportunidades de ahorro."
+                    : `Según tus movimientos, FinApp detecta oportunidades de ahorro en ${topCategory.category}, gastos recurrentes y consumo impulsivo.`}
+                </p>
+              </div>
+
+              <div className="list">
+                {aiGoalSuggestions.map((goal) => (
+                  <div key={goal.id} className="card">
+                    <div className="card-head">
+                      <div>
+                        <span className="tag">{goal.tag}</span>
+                        <h3>{goal.title}</h3>
+                      </div>
+                      <span>{formatCLP(goal.target)}</span>
+                    </div>
+
+                    <p>{goal.description}</p>
+
+                    <button className="soft-button" onClick={() => addGoal(goal)}>
+                      Fijar esta meta
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tab === "insights" && (
+            <div className="screen">
+              <div className="section-title">
+                <p className="eyebrow">Insights personalizados</p>
+                <h2>Acciones concretas para ahorrar</h2>
+                <p>
+                  El objetivo no es mostrar más datos, sino traducirlos en
+                  decisiones simples.
+                </p>
+              </div>
+
+              {expenses.length === 0 && (
+                <div className="empty-state">
+                  <h3>Aún no hay insights</h3>
+                  <p>
+                    Agrega gastos para que FinApp genere recomendaciones
+                    personalizadas.
+                  </p>
+                  <button className="soft-button" onClick={() => setTab("add")}>
+                    Agregar gasto
+                  </button>
+                </div>
+              )}
+
+              {expenses.length > 0 && (
+                <>
+                  <div className="insight-card">
+                    <span>01</span>
+                    <h3>Reduce tu mayor categoría</h3>
+                    <p>
+                      Tu mayor gasto es {topCategory.category}. Si reduces esa
+                      categoría en 15%, podrías ahorrar cerca de{" "}
+                      {formatCLP(Math.round(topCategory.amount * 0.15))}.
+                    </p>
+                  </div>
+
+                  <div className="insight-card">
+                    <span>02</span>
+                    <h3>Revisa gastos recurrentes</h3>
+                    <p>
+                      Detectamos posibles suscripciones o cargos recurrentes. En
+                      la app final, FinApp alertaría estos cargos para decidir si
+                      mantenerlos o cancelarlos.
+                    </p>
+                  </div>
+
+                  <div className="insight-card">
+                    <span>03</span>
+                    <h3>Conecta gasto con meta</h3>
+                    <p>
+                      Si mantienes el ahorro sugerido de{" "}
+                      {formatCLP(activeGoal.monthlySuggestion)} al mes, avanzarás
+                      más rápido hacia “{activeGoal.title}”.
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </section>
+
+        <nav className="nav">
+          <button
+            className={tab === "home" ? "active" : ""}
+            onClick={() => setTab("home")}
+          >
+            Inicio
+          </button>
+          <button
+            className={tab === "dashboard" ? "active" : ""}
+            onClick={() => setTab("dashboard")}
+          >
+            Panel
+          </button>
+          <button
+            className={tab === "add" ? "active" : ""}
+            onClick={() => setTab("add")}
+          >
+            Agregar
+          </button>
+          <button
+            className={tab === "expenses" ? "active" : ""}
+            onClick={() => setTab("expenses")}
+          >
+            Gastos
+          </button>
+          <button
+            className={tab === "goals" ? "active" : ""}
+            onClick={() => setTab("goals")}
+          >
+            Metas
+          </button>
+          <button
+            className={tab === "ai" ? "active" : ""}
+            onClick={() => setTab("ai")}
+          >
+            IA
+          </button>
+          <button
+            className={tab === "insights" ? "active" : ""}
+            onClick={() => setTab("insights")}
+          >
+            Ideas
+          </button>
+        </nav>
+      </div>
+    </main>
+  );
 }
