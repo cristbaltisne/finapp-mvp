@@ -11,7 +11,9 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-button {
+button,
+input,
+select {
   font-family: inherit;
 }
 
@@ -275,47 +277,38 @@ button {
   margin-top: 8px;
 }
 
-.goal-card {
-  width: 100%;
-  text-align: left;
-  border: 1px solid transparent;
-}
-
-.goal-card.selected {
-  border-color: #0f172a;
-}
-
-.expense-row {
+.onboarding-step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  padding: 14px 0;
   border-bottom: 1px solid #eef2f7;
-  padding-bottom: 14px;
 }
 
-.expense-row:last-child {
+.onboarding-step:last-child {
   border-bottom: 0;
   padding-bottom: 0;
 }
 
-.expense-row h3 {
-  margin: 0;
-  font-size: 15px;
-}
-
-.expense-row p {
-  margin: 4px 0 0;
-}
-
-.insight-card {
-  background: white;
-  padding: 22px;
-  border-left: 5px solid #0f172a;
-}
-
-.insight-card span {
+.onboarding-step span {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #0f172a;
+  color: white;
   display: inline-flex;
-  margin-bottom: 10px;
-  font-size: 12px;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
   font-weight: 900;
-  color: #64748b;
+}
+
+.onboarding-step h3 {
+  margin: 0 0 4px;
+}
+
+.onboarding-step p {
+  margin: 0;
 }
 
 .form-card {
@@ -365,7 +358,7 @@ button {
 }
 
 .detected-card h3 {
-  margin: 0;
+  margin: 0 0 6px;
   color: #0f172a;
   font-size: 20px;
 }
@@ -378,6 +371,29 @@ button {
   padding: 16px;
   font-size: 14px;
   line-height: 1.5;
+}
+
+.expense-row {
+  border-bottom: 1px solid #eef2f7;
+  padding-bottom: 14px;
+}
+
+.expense-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.expense-row h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.expense-row p {
+  margin: 4px 0 8px;
+}
+
+.expense-row.editable {
+  align-items: flex-start;
 }
 
 .expense-actions {
@@ -401,6 +417,23 @@ button {
   background: #fecaca;
 }
 
+.category-select {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  outline: none;
+}
+
+.category-select:focus {
+  border-color: #0f172a;
+  background: white;
+}
+
 .empty-state {
   background: #f8fafc;
   border: 1px dashed #cbd5e1;
@@ -420,6 +453,16 @@ button {
   color: #64748b;
   font-size: 14px;
   line-height: 1.5;
+}
+
+.goal-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+}
+
+.goal-card.selected {
+  border-color: #0f172a;
 }
 
 .goal-contribution {
@@ -455,6 +498,51 @@ button {
   margin-top: 10px;
   cursor: pointer;
   text-decoration: underline;
+}
+
+.insight-card {
+  background: white;
+  padding: 22px;
+  border-left: 5px solid #0f172a;
+}
+
+.insight-card span {
+  display: inline-flex;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #64748b;
+}
+
+.benefit-row {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+  align-items: start;
+  border-bottom: 1px solid #eef2f7;
+  padding: 13px 0;
+}
+
+.benefit-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.benefit-row span {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #166534;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.benefit-row p {
+  margin: 0;
 }
 
 .nav {
