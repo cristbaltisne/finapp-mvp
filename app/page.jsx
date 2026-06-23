@@ -946,7 +946,7 @@ export default function Home() {
             className={tab === "dashboard" ? "active" : ""}
             onClick={() => setTab("dashboard")}
           >
-            Panel
+            Dashboard
           </button>
           <button
             className={tab === "add" ? "active" : ""}
