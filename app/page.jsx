@@ -16,27 +16,18 @@ const initialGoals = [
   },
   {
     id: 2,
-    title: "Reducir gastos hormiga",
-    description: "Bajar gastos pequeños y frecuentes que se acumulan durante el mes.",
-    target: 250000,
-    current: 60000,
-    monthlySuggestion: 40000,
-    tag: "Control",
+    title: "Fondo de emergencia",
+    description: "Crear un colchón financiero para imprevistos del día a día.",
+    target: 900000,
+    current: 250000,
+    monthlySuggestion: 85000,
+    tag: "Seguridad",
   },
 ];
 
 const aiGoalSuggestions = [
   {
     id: 101,
-    title: "Crear fondo de emergencia",
-    description: "Construir un colchón financiero para cubrir imprevistos sin usar deuda.",
-    target: 900000,
-    current: 250000,
-    monthlySuggestion: 85000,
-    tag: "Seguridad",
-  },
-  {
-    id: 102,
     title: "Bajar delivery en 30%",
     description: "Reducir pedidos de comida y redirigir ese ahorro a una meta personal.",
     target: 180000,
@@ -45,7 +36,7 @@ const aiGoalSuggestions = [
     tag: "Ahorro",
   },
   {
-    id: 103,
+    id: 102,
     title: "Ahorrar para estudios",
     description: "Separar un monto mensual para financiar cursos, diplomados o un MBA.",
     target: 1200000,
@@ -53,6 +44,29 @@ const aiGoalSuggestions = [
     monthlySuggestion: 100000,
     tag: "Educación",
   },
+  {
+    id: 103,
+    title: "Reducir gastos hormiga",
+    description: "Identificar gastos pequeños y frecuentes que se acumulan durante el mes.",
+    target: 250000,
+    current: 60000,
+    monthlySuggestion: 40000,
+    tag: "Control",
+  },
+];
+
+const categoriesList = [
+  "Transporte",
+  "Delivery",
+  "Supermercado",
+  "Cafés",
+  "Suscripciones",
+  "Entretención",
+  "Alimentación",
+  "Salud",
+  "Educación",
+  "Sin clasificar",
+  "Otros",
 ];
 
 function formatCLP(value) {
@@ -78,6 +92,15 @@ function getProgress(goal) {
 
 function categorizeExpense(description) {
   const text = description.toLowerCase();
+
+  if (
+    text.includes("transferencia") ||
+    text.includes("transf") ||
+    text.includes("tef") ||
+    text.includes("pago a persona")
+  ) {
+    return "Sin clasificar";
+  }
 
   if (
     text.includes("uber") ||
@@ -140,6 +163,15 @@ function categorizeExpense(description) {
     return "Entretención";
   }
 
+  if (
+    text.includes("farmacia") ||
+    text.includes("cruz verde") ||
+    text.includes("salcobrand") ||
+    text.includes("doctor")
+  ) {
+    return "Salud";
+  }
+
   return "Otros";
 }
 
@@ -155,6 +187,8 @@ export default function Home() {
   const [lastAddedCategory, setLastAddedCategory] = useState("");
 
   const [goalAmounts, setGoalAmounts] = useState({});
+  const [goalNotification, setGoalNotification] = useState("");
+  const [premiumClicked, setPremiumClicked] = useState(false);
 
   const totalExpenses = useMemo(() => {
     return expenses.reduce((sum, item) => sum + item.amount, 0);
@@ -230,6 +264,19 @@ export default function Home() {
     setExpenses(expenses.filter((expense) => expense.id !== expenseId));
   }
 
+  function updateExpenseCategory(expenseId, newCategory) {
+    setExpenses(
+      expenses.map((expense) => {
+        if (expense.id !== expenseId) return expense;
+
+        return {
+          ...expense,
+          category: newCategory,
+        };
+      })
+    );
+  }
+
   function addMoneyToGoal(goalId) {
     const amount = Math.abs(Number(goalAmounts[goalId]));
 
@@ -255,6 +302,9 @@ export default function Home() {
     });
 
     setActiveGoalId(goalId);
+    setGoalNotification(
+      "Ahorro agregado. Te recordaremos revisar esta meta durante la semana."
+    );
   }
 
   function addGoal(goal) {
@@ -285,7 +335,7 @@ export default function Home() {
             <h1>Tu plata, más clara.</h1>
           </div>
 
-          <div className="status-pill">MVP</div>
+          <div className="status-pill">Beta privada</div>
         </header>
 
         <section className="content">
@@ -293,15 +343,51 @@ export default function Home() {
             <div className="screen">
               <div className="hero-card">
                 <p className="eyebrow light">Inicio</p>
-                <h2>Ordena tus gastos y avanza hacia tus metas.</h2>
+                <h2>Controla tus gastos sin planillas ni enredos.</h2>
                 <p>
-                  Ingresa movimientos manualmente, FinApp los categoriza y
-                  actualiza tu dashboard en tiempo real.
+                  FinApp ordena tus movimientos, detecta patrones de gasto y te
+                  ayuda a avanzar hacia tus metas financieras.
                 </p>
 
                 <button className="dark-button" onClick={() => setTab("add")}>
-                  Agregar gasto
+                  Empezar ahora
                 </button>
+              </div>
+
+              <div className="card">
+                <p className="eyebrow">Cómo funciona</p>
+
+                <div className="onboarding-step">
+                  <span>1</span>
+                  <div>
+                    <h3>Ingresa tus movimientos</h3>
+                    <p>
+                      En esta beta puedes ingresar gastos manualmente para
+                      simular la conexión bancaria.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="onboarding-step">
+                  <span>2</span>
+                  <div>
+                    <h3>FinApp los categoriza</h3>
+                    <p>
+                      La app clasifica comercios reconocibles y deja sin
+                      clasificar movimientos ambiguos.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="onboarding-step">
+                  <span>3</span>
+                  <div>
+                    <h3>Recibe metas e insights</h3>
+                    <p>
+                      Convierte tus gastos en decisiones concretas de ahorro.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="grid-2">
@@ -352,7 +438,7 @@ export default function Home() {
           {tab === "dashboard" && (
             <div className="screen">
               <div className="dark-card">
-                <p>Dashboard de gastos</p>
+                <p>Panel de gastos</p>
                 <h2>{formatCLP(totalExpenses)}</h2>
                 <span>
                   {expenses.length === 0
@@ -413,6 +499,17 @@ export default function Home() {
                 </div>
               </div>
 
+              {expenses.length > 0 && (
+                <div className="insight-card">
+                  <span>Insight</span>
+                  <h3>Reduce tu mayor categoría</h3>
+                  <p>
+                    Si reduces {topCategory.category} en 15%, podrías ahorrar
+                    cerca de {formatCLP(Math.round(topCategory.amount * 0.15))}.
+                  </p>
+                </div>
+              )}
+
               <button className="dark-button" onClick={() => setTab("add")}>
                 Agregar nuevo gasto
               </button>
@@ -422,11 +519,11 @@ export default function Home() {
           {tab === "add" && (
             <div className="screen">
               <div className="section-title">
-                <p className="eyebrow">Agregar gasto</p>
-                <h2>Ingresa un movimiento</h2>
+                <p className="eyebrow">Agregar movimiento</p>
+                <h2>Ingresa un gasto</h2>
                 <p>
-                  La app clasifica automáticamente el gasto según la descripción
-                  ingresada.
+                  En esta beta, el ingreso manual simula la conexión con tus
+                  cuentas bancarias.
                 </p>
               </div>
 
@@ -454,7 +551,7 @@ export default function Home() {
                   Descripción
                   <input
                     type="text"
-                    placeholder="Ej: Uber, Rappi, Spotify..."
+                    placeholder="Ej: Uber, Rappi, Spotify, Transferencia Juan..."
                     value={newDescription}
                     onChange={(event) => setNewDescription(event.target.value)}
                   />
@@ -463,18 +560,25 @@ export default function Home() {
                 <div className="detected-card">
                   <p>Categoría detectada</p>
                   <h3>{predictedCategory}</h3>
+                  {predictedCategory === "Sin clasificar" && (
+                    <p>
+                      Las transferencias entre personas quedan sin clasificar
+                      hasta que el usuario agregue más contexto.
+                    </p>
+                  )}
                 </div>
 
                 <button className="dark-button" type="submit">
-                  Agregar y actualizar dashboard
+                  Agregar y actualizar panel
                 </button>
               </form>
 
               <div className="card">
-                <p className="eyebrow">Ejemplos para probar</p>
+                <p className="eyebrow">Prueba rápida</p>
                 <p>
-                  Escribe “Uber” para Transporte, “Rappi” para Delivery,
-                  “Spotify” para Suscripciones o “Líder” para Supermercado.
+                  Usa “Uber” para Transporte, “Rappi” para Delivery, “Spotify”
+                  para Suscripciones o “Transferencia Andrés” para Sin
+                  clasificar.
                 </p>
               </div>
             </div>
@@ -483,11 +587,11 @@ export default function Home() {
           {tab === "expenses" && (
             <div className="screen">
               <div className="section-title">
-                <p className="eyebrow">Gastos categorizados</p>
-                <h2>Movimientos del mes</h2>
+                <p className="eyebrow">Movimientos</p>
+                <h2>Gastos categorizados</h2>
                 <p>
-                  Cada movimiento ingresado queda registrado y clasificado
-                  automáticamente.
+                  Puedes corregir categorías manualmente para mejorar la calidad
+                  del análisis.
                 </p>
               </div>
 
@@ -497,8 +601,7 @@ export default function Home() {
                     <div className="empty-state">
                       <h3>No hay gastos registrados</h3>
                       <p>
-                        Agrega tu primer movimiento para ver el dashboard
-                        actualizado.
+                        Agrega tu primer movimiento para ver el panel actualizado.
                       </p>
                       <button className="soft-button" onClick={() => setTab("add")}>
                         Agregar gasto
@@ -507,12 +610,24 @@ export default function Home() {
                   )}
 
                   {expenses.map((expense) => (
-                    <div key={expense.id} className="expense-row">
+                    <div key={expense.id} className="expense-row editable">
                       <div>
                         <h3>{expense.name}</h3>
-                        <p>
-                          {expense.category} · {formatDate(expense.date)}
-                        </p>
+                        <p>{formatDate(expense.date)}</p>
+
+                        <select
+                          className="category-select"
+                          value={expense.category}
+                          onChange={(event) =>
+                            updateExpenseCategory(expense.id, event.target.value)
+                          }
+                        >
+                          {categoriesList.map((category) => (
+                            <option key={category} value={category}>
+                              {category}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="expense-actions">
@@ -534,13 +649,17 @@ export default function Home() {
           {tab === "goals" && (
             <div className="screen">
               <div className="section-title">
-                <p className="eyebrow">Seguimiento de metas</p>
-                <h2>Tus objetivos financieros</h2>
+                <p className="eyebrow">Metas financieras</p>
+                <h2>Haz seguimiento a tu ahorro</h2>
                 <p>
-                  Puedes agregar dinero ahorrado a cada meta y ver cómo aumenta
-                  el avance automáticamente.
+                  Agrega dinero ahorrado a cada meta y recibe recordatorios
+                  simulados de seguimiento.
                 </p>
               </div>
+
+              {goalNotification && (
+                <div className="success-card">{goalNotification}</div>
+              )}
 
               <div className="list">
                 {goals.map((goal) => (
@@ -606,7 +725,7 @@ export default function Home() {
               </div>
 
               <button className="dark-button" onClick={() => setTab("ai")}>
-                Proponer nueva meta con IA
+                Ver metas sugeridas
               </button>
             </div>
           )}
@@ -614,11 +733,11 @@ export default function Home() {
           {tab === "ai" && (
             <div className="screen">
               <div className="section-title">
-                <p className="eyebrow">Metas sugeridas por IA</p>
-                <h2>Elige una recomendación</h2>
+                <p className="eyebrow">Recomendaciones</p>
+                <h2>Metas sugeridas por FinApp</h2>
                 <p>
-                  Estas metas están simuladas para el MVP, pero muestran cómo la
-                  app traduciría los gastos en objetivos financieros.
+                  La app transforma patrones de gasto en objetivos financieros
+                  simples y accionables.
                 </p>
               </div>
 
@@ -658,63 +777,63 @@ export default function Home() {
             </div>
           )}
 
-          {tab === "insights" && (
+          {tab === "premium" && (
             <div className="screen">
-              <div className="section-title">
-                <p className="eyebrow">Insights personalizados</p>
-                <h2>Acciones concretas para ahorrar</h2>
+              <div className="hero-card">
+                <p className="eyebrow light">FinApp Premium</p>
+                <h2>$3.990 al mes</h2>
                 <p>
-                  El objetivo no es mostrar más datos, sino traducirlos en
-                  decisiones simples.
+                  Para usuarios que quieren automatizar el control financiero y
+                  recibir recomendaciones más avanzadas.
                 </p>
+
+                <button
+                  className="dark-button"
+                  onClick={() => setPremiumClicked(true)}
+                >
+                  Quiero el plan premium
+                </button>
               </div>
 
-              {expenses.length === 0 && (
-                <div className="empty-state">
-                  <h3>Aún no hay insights</h3>
-                  <p>
-                    Agrega gastos para que FinApp genere recomendaciones
-                    personalizadas.
-                  </p>
-                  <button className="soft-button" onClick={() => setTab("add")}>
-                    Agregar gasto
-                  </button>
+              {premiumClicked && (
+                <div className="success-card">
+                  Listo. Te avisaremos cuando el plan premium esté disponible en
+                  la beta cerrada.
                 </div>
               )}
 
-              {expenses.length > 0 && (
-                <>
-                  <div className="insight-card">
-                    <span>01</span>
-                    <h3>Reduce tu mayor categoría</h3>
-                    <p>
-                      Tu mayor gasto es {topCategory.category}. Si reduces esa
-                      categoría en 15%, podrías ahorrar cerca de{" "}
-                      {formatCLP(Math.round(topCategory.amount * 0.15))}.
-                    </p>
-                  </div>
+              <div className="card">
+                <p className="eyebrow">Incluye</p>
 
-                  <div className="insight-card">
-                    <span>02</span>
-                    <h3>Revisa gastos recurrentes</h3>
-                    <p>
-                      Detectamos posibles suscripciones o cargos recurrentes. En
-                      la app final, FinApp alertaría estos cargos para decidir si
-                      mantenerlos o cancelarlos.
-                    </p>
-                  </div>
+                <div className="benefit-row">
+                  <span>✓</span>
+                  <p>Conexión automática con cuentas bancarias compatibles.</p>
+                </div>
 
-                  <div className="insight-card">
-                    <span>03</span>
-                    <h3>Conecta gasto con meta</h3>
-                    <p>
-                      Si mantienes el ahorro sugerido de{" "}
-                      {formatCLP(activeGoal.monthlySuggestion)} al mes, avanzarás
-                      más rápido hacia “{activeGoal.title}”.
-                    </p>
-                  </div>
-                </>
-              )}
+                <div className="benefit-row">
+                  <span>✓</span>
+                  <p>Categorización inteligente de movimientos.</p>
+                </div>
+
+                <div className="benefit-row">
+                  <span>✓</span>
+                  <p>Recomendaciones accionables para ahorrar todos los meses.</p>
+                </div>
+
+                <div className="benefit-row">
+                  <span>✓</span>
+                  <p>Recordatorios de seguimiento para tus metas financieras.</p>
+                </div>
+              </div>
+
+              <div className="card">
+                <p className="eyebrow">Prueba inicial</p>
+                <h3>30 días gratis</h3>
+                <p>
+                  Puedes probar FinApp Premium antes de decidir si pagar el plan
+                  mensual.
+                </p>
+              </div>
             </div>
           )}
         </section>
@@ -757,10 +876,10 @@ export default function Home() {
             IA
           </button>
           <button
-            className={tab === "insights" ? "active" : ""}
-            onClick={() => setTab("insights")}
+            className={tab === "premium" ? "active" : ""}
+            onClick={() => setTab("premium")}
           >
-            Ideas
+            Premium
           </button>
         </nav>
       </div>
